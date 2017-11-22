@@ -22,11 +22,6 @@ module.exports = function(program, config, relativeRoot){
     }, 1000 * 60 * 5);
 
     app.get('/*', function(req, res) {
-        if (program.config) {
-            // Load the config every request because it's easiest.
-            config = JSON.parse(fs.readFileSync(program.config));
-        }
-
         // Parse the URL
         var url = parse(req.url).pathname;
 
@@ -35,17 +30,35 @@ module.exports = function(program, config, relativeRoot){
             url = url.replace(i, config.searchandreplace[i]);
         }
 
+        var redirect;
+        config.redirect.some((thisRedirect) => {
+          if(url.match(thisRedirect[0])){
+            redirect = url.replace(thisRedirect[0], thisRedirect[1]);
+            return false;
+          }
+
+          return true;
+        });
+
+        if(redirect){
+          console.log('Redirect: ', req.url);
+          res.writeHead(302, {'Location': redirect});
+          res.end();
+          return;
+        }
+
         // Go through each path & see if we should serve it locally.
         for (var i = 0; i < config.paths.length; i++) {
             var thisPath = config.paths[i];
 
             // Does this url match?
-            if (url.indexOf(thisPath[0]) === 0) {
+            var regex = new RegExp(thisPath[0]);
+            if (url.match(regex)) {
                 // Check if the local file exists.
-                var localFile = path.resolve(relativeRoot, thisPath[1] + url.substr(thisPath[0].length));
+                var localFile = path.resolve(relativeRoot, thisPath[1] + url.replace(regex, ''));
                 if (fs.existsSync(localFile) && fs.statSync(localFile).isFile()) {
                     // It exists. Send that.
-                    console.log('Local: ', req.url);
+                    console.log('Local:    ', req.url);
                     var mimetype = mime.lookup(localFile);
                     res.header('Access-Control-Allow-Origin', '*');
                     res.sendFile(localFile);
@@ -59,14 +72,6 @@ module.exports = function(program, config, relativeRoot){
         function go(remoteServer) {
             var proto = req.connection.encrypted ? 'https://' : 'http://';
             var remoteUrl = proto + remoteServer + req.url;
-
-            // Cachebuster adds a timestamp to all requests if it's set.
-            if (config.cachebust) {
-                var cachebuster = Date.now();
-                remoteUrl = remoteUrl.indexOf('?') === -1 ?
-                    remoteUrl + '?_=' + cachebuster :
-                    remoteUrl + '&_=' + cachebuster;
-            }
 
             var requestOpts = {
                 // The remote URL is direct IP, because we have HOSTS set.
@@ -85,7 +90,7 @@ module.exports = function(program, config, relativeRoot){
                 })
                 .on('response', function(response) {
                     // We have a response. Send the headers.
-                    console.log((config.cachebust ? 'Cachebust: ' : 'Remote: '), remoteUrl);
+                    console.log('Remote:   ', remoteUrl);
                     for (var header in response.headers) {
                         var val = response.headers[header];
                         // Some headers, cookies usually, can be sent multiple times.
