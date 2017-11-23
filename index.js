@@ -17,17 +17,15 @@ if (program.config && !fs.existsSync(program.config)) {
 }
 
 var config = {};
+var relativeRoot = process.cwd();
 
-var relativeRoot;
 
 if (program.config) {
     // We have a config file!
-    // We'll load this in app.js, but work out what the relative path is first.
-    relativeRoot = path.dirname(path.resolve(program.config));
+    config = require(path.join(path.resolve(program.config)), program.config);
 } else {
     // No config file, apply some defaults.
     // Set this folder as the relative root.
-    relativeRoot = process.cwd();
     console.log('No config specified. Serving from \n',relativeRoot);
 
     // Set a default config to serve this path.
