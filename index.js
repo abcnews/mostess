@@ -19,10 +19,16 @@ if (program.config && !fs.existsSync(program.config)) {
 
 let config = {};
 const relativeRoot = process.cwd();
+const configPath = path.join(relativeRoot, program.config);
 
 if (program.config) {
     // We have a config file!
-  config = JSON.parse(fs.readFileSync(path.join(path.resolve(program.config), program.config)));
+  config = Object.assign({
+    searchandreplace: [],
+    redirect: [],
+    paths: [],
+    // eslint-disable-next-line
+  }, require(configPath));
 } else {
     // No config file, apply some defaults.
     // Set this folder as the relative root.
@@ -30,6 +36,8 @@ if (program.config) {
 
     // Set a default config to serve this path.
   config = {
+    searchandreplace: [],
+    redirect: [],
     paths: [['/', '']], // Map the root folder to this the cwd.
   };
 }

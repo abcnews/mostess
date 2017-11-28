@@ -36,10 +36,10 @@ An example config follows:
 
 ``` js
 module.exports = {
-  searchandreplace: {
+  searchandreplace: [
     // Point the remote foo to the local bar
-    'foo.js': 'bar.js',
-  },
+    ['foo.js', 'bar.js'],
+  ],
   redirect: [
     // Redirect assets to another server
     // foo.css or bar.css will be redirected to the server on localhost:8000

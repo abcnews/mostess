@@ -1,12 +1,12 @@
 module.exports = {
-  searchandreplace: {
+  searchandreplace: [
     // Point the remote foo to the local bar
-    'foo.js': 'bar.js',
-  },
+    ['foo.js', 'bar.js'],
+  ],
   redirect: [
     // Redirect assets to another server
     // foo.css or bar.css will be redirected to the server on localhost:8000
-    [ /.*((foo|bar).css)$/, 'http://localhost:8000/$1' ],
+    [/.*((foo|bar).css)$/, 'http://localhost:8000/$1'],
   ],
   paths: [
     // Redirect this path to the local build folder
@@ -21,8 +21,8 @@ module.exports = {
     ],
   ],
   ssl: {
-      key: "path/to/key",
-      cert: "path/to/cert",
-      passphrase: "my passphrase (optional)"
-  }
+    key: 'path/to/key',
+    cert: 'path/to/cert',
+    passphrase: 'my passphrase (optional)',
+  },
 };
