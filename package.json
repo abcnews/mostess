@@ -1,6 +1,6 @@
 {
   "name": "@abcnews/mostess",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "Proxy to serve local assets.",
   "main": "index.js",
   "scripts": {
