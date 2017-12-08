@@ -108,6 +108,11 @@ module.exports = (program, config, relativeRoot) => {
     if (!resolved[req.headers.host]) {
       // If not, resolve & save.
       dns.resolve(req.headers.host, (err, resp) => {
+        if (err) {
+          res.writeHead(500);
+          res.end(`Could not resolve ${req.headers.host}`);
+          return;
+        }
         console.log('resolved %s to %s', req.headers.host, resp[0]);
         resolved[req.headers.host] = resp[0];
         go(resp[0]);
