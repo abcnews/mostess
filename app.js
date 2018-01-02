@@ -28,13 +28,10 @@ module.exports = (program, config, relativeRoot) => {
     });
 
     let redirect;
-    config.redirect.some((thisRedirect) => {
+    config.redirect.forEach((thisRedirect) => {
       if (url.match(thisRedirect[0])) {
         redirect = url.replace(thisRedirect[0], thisRedirect[1]);
-        return false;
       }
-
-      return true;
     });
 
     if (redirect) {
